@@ -1,79 +1,40 @@
-import { Course } from '../models/course';
-import { User } from '../models/user';
+import Course, { ICourse } from '../models/courseModel';
+import User, { IUser } from '../models/userModel';
 
 export class CourseService {
-  static async createCourse(courseData: any, user: User) {
-    if (!user.roles.includes('Teacher')) {
-      throw new Error('Only teachers can create courses');
-    }
-    const newCourse = new Course({
-      ...courseData,
-      institution: user.institution,
-      owner: user.id,
-      status: 'draft',
-    });
-    return await newCourse.save();
-  }
-
-  static async listCourses(institutionId: string) {
-    return await Course.find({ institution: institutionId });
-  }
-
-  static async getCourseDetails(courseId: string, user: User) {
-    const course = await Course.findById(courseId);
-    if (!course) {
-      throw new Error('Course not found');
-    }
-    if (!course.enrolledUsers.includes(user.id) && course.owner !== user.id) {
-      throw new Error('You do not have permission to view this course');
-    }
-    return course;
-  }
-
-  static async updateCourse(courseId: string, courseData: any, user: User) {
-    const course = await Course.findById(courseId);
-    if (!course) {
-      throw new Error('Course not found');
-    }
-    if (course.owner !== user.id && !user.roles.includes('Admin')) {
-      throw new Error('You are not authorized to update this course');
-    }
-    Object.assign(course, courseData);
+  static async createCourse(data: ICourse) {
+    const course = new Course(data);
     return await course.save();
   }
 
-  static async archiveCourse(courseId: string, user: User) {
-    const course = await Course.findById(courseId);
-    if (!course) {
-      throw new Error('Course not found');
-    }
-    if (course.owner !== user.id && !user.roles.includes('Admin')) {
-      throw new Error('You are not authorized to archive this course');
-    }
-    course.status = 'archived';
-    return await course.save();
+  static async getCoursesByInstitution(institution: string) {
+    return await Course.find({ institution });
   }
 
-  static async publishCourse(courseId: string, user: User, publish: boolean) {
-    const course = await Course.findById(courseId);
-    if (!course) {
-      throw new Error('Course not found');
-    }
-    if (course.owner !== user.id && !user.roles.includes('Teacher')) {
-      throw new Error('You are not authorized to publish/unpublish this course');
-    }
-    course.status = publish ? 'published' : 'draft';
-    return await course.save();
+  static async getCourseById(id: string) {
+    return await Course.findById(id);
   }
 
-  static async getCourseStats(courseId: string, user: User) {
-    const course = await Course.findById(courseId);
-    if (!course) {
-      throw new Error('Course not found');
-    }
-    if (course.owner !== user.id && !user.roles.includes('Teacher')) {
-      throw new Error('You are not authorized to view course stats');
-    }
-    return { enrollments: course.enrolledUsers.length };
+  static async updateCourse(id: string, data: Partial<ICourse>) {
+    return await Course.findByIdAndUpdate(id, data, { new: true });
+  }
+
+  static async deleteCourse(id: string) {
+    return await Course.findByIdAndDelete(id);
+  }
+
+  static async publishCourse(id: string) {
+    return await Course.findByIdAndUpdate(id, { status: 'published' }, { new: true });
+  }
+
+  static async unpublishCourse(id: string) {
+    return await Course.findByIdAndUpdate(id, { status: 'draft' }, { new: true });
+  }
+
+  static async getCourseAnalytics(id: string) {
+    const course = await Course.findById(id);
+    if (!course) throw new Error('Course not found');
+    const usersEnrolled = await User.find({ institution: course.institution });
+    return { course, usersEnrolled };
   }
 }
