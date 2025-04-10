@@ -1,14 +1,13 @@
-import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { initializeApp } from 'firebase-admin/app';
 import { setupSwagger } from '../config/swagger';
-
-import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
-import courseRoutes from './routes/courseRoutes';
-import enrollmentRoutes from './routes/enrollmentRoutes';
-import analyticsRoutes from './routes/analyticsRoutes';
+import express, { Request, Response, Router } from 'express';
+import authRoutes from 'src/api/v1/routes/authRoutes';
+import userRoutes from 'src/api/v1/routes/userRoutes';
+import courseRoutes from 'src/api/v1/routes/courseRoutes';
+import enrollmentRoutes from 'src/api/v1/routes/enrollmentRoutes';
+import analyticsRoutes from 'src/api/v1/routes/analyticsRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -34,7 +33,7 @@ app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
 // Default Route
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
     res.send('Welcome to UpGrade Pro - Secure Educational Management API');
 });
 
