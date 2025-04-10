@@ -1,40 +1,41 @@
-import Course, { ICourse } from '../models/courseModel';
-import User, { IUser } from '../models/userModel';
+import { IUser } from '../models/userModel';
 
-export class CourseService {
-  static async createCourse(data: ICourse) {
-    const course = new Course(data);
-    return await course.save();
-  }
+class CourseService {
+    
+    static async createCourse(courseData: any, user: IUser) {
+        // Logic to create a new course
+        return { id: 1, name: courseData.name, createdBy: user.id };
+    }
 
-  static async getCoursesByInstitution(institution: string) {
-    return await Course.find({ institution });
-  }
+    static async listCourses(institutionId: string) {
+        // Logic to list courses by institutionId
+        return [{ id: 1, name: 'Math 101', institutionId }];
+    }
 
-  static async getCourseById(id: string) {
-    return await Course.findById(id);
-  }
+    static async getCourseDetails(courseId: string, user: IUser) {
+        // Logic to get course details by courseId
+        return { id: courseId, name: 'Math 101', description: 'Course description', createdBy: user.id };
+    }
 
-  static async updateCourse(id: string, data: Partial<ICourse>) {
-    return await Course.findByIdAndUpdate(id, data, { new: true });
-  }
+    static async updateCourse(courseId: string, courseData: any, user: IUser) {
+        // Logic to update course details
+        return { id: courseId, name: courseData.name, updatedBy: user.id };
+    }
 
-  static async deleteCourse(id: string) {
-    return await Course.findByIdAndDelete(id);
-  }
+    static async archiveCourse(courseId: string, user: IUser) {
+        // Logic to archive course by courseId
+        return { message: `Course ${courseId} archived by user ${user.id}` };
+    }
 
-  static async publishCourse(id: string) {
-    return await Course.findByIdAndUpdate(id, { status: 'published' }, { new: true });
-  }
+    static async publishCourse(courseId: string, user: IUser) {
+        // Logic to publish a course
+        return { message: `Course ${courseId} published by user ${user.id}` };
+    }
 
-  static async unpublishCourse(id: string) {
-    return await Course.findByIdAndUpdate(id, { status: 'draft' }, { new: true });
-  }
-
-  static async getCourseAnalytics(id: string) {
-    const course = await Course.findById(id);
-    if (!course) throw new Error('Course not found');
-    const usersEnrolled = await User.find({ institution: course.institution });
-    return { course, usersEnrolled };
-  }
+    static async getCourseStats(courseId: string) {
+        // Logic to get course statistics
+        return { id: courseId, enrolledStudents: 100, completionRate: "85%" };
+    }
 }
+
+export { CourseService };
