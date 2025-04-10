@@ -1,40 +1,32 @@
+import express from 'express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { Express } from 'express';
+import courseRoutes from '../src/api/v1/routes/courseRoutes';
+
+const app = express();
 
 // Swagger definition
-const options: swaggerJsdoc.Options = {
-    definition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'UpGrade Pro API',
-            version: '1.0.0',
-            description: 'API documentation for the UpGrade Pro educational platform',
-            contact: {
-                name: 'Karanveer Singh',
-                email: 'karanveer@example.com',
-            },
-        },
-        servers: [
-            {
-                url: 'http://localhost:5000',
-                description: 'Local development server',
-            },
-            {
-                url: 'https://upgrade-pro-api.example.com',
-                description: 'Production server',
-            },
-        ],
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: 'Course Management API',
+      version: '1.0.0',
+      description: 'API for managing courses in an education system',
     },
-    apis: ['./src/routes/*.ts'], // Path to your route files
+    basePath: '/',
+  },
+  apis: ['./src/routes/courseRoutes.ts'], // Path to the routes file
 };
 
-// Initialize Swagger Docs
-const swaggerSpec = swaggerJsdoc(options);
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
-// Function to setup Swagger in Express
-export const setupSwagger = (app: Express) => {
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-};
+// Serve Swagger API Docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-export default swaggerSpec;
+// Use Course routes
+app.use('/api/v1', courseRoutes);
+
+// Start server
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
